@@ -42,6 +42,7 @@ class LostInSpace(Application):
         self.vector = None
         self.color_level = [0]*6
         self.last_spawn_color = 0
+        self.joy_dir = ''
         # Treating arguments
         parser = argparser.parse_args()
         self.invader = parser.invader
@@ -64,7 +65,21 @@ class LostInSpace(Application):
 
     def event(self):
         action = False
-        pygame.event.pump()
+        events = self.arbalet.events.get()
+        button_event = len([e for e in events if e.type == pygame.JOYBUTTONDOWN]) != 0
+        hat_events = [e.value for e in events if e.type == pygame.JOYHATMOTION]
+
+        for e in hat_events:
+            if e[1] == 1:
+                self.joy_dir = 'up'
+            elif e[1] == -1:
+                self.joy_dir = 'down'
+            elif e[0] == 1:
+                self.joy_dir = 'right'
+            elif e[0] == -1:
+                self.joy_dir = 'left'
+            elif e == (0, 0):
+                self.joy_dir = ''       
         keys = pygame.key.get_pressed()
         
         if(self.ai):
@@ -77,23 +92,23 @@ class LostInSpace(Application):
         for it in range(steps):
             #time.sleep(0.05)
             #print direction, it, steps
-            if keys[K_UP] or direction == 'up':
+            if keys[K_UP] or self.joy_dir == 'up' or direction == 'up':
                 self.offset_y = (self.offset_y - 1) % size[1]
                 self.vector = 'up'
                 action = True
-            elif keys[K_DOWN] or direction == 'down':
+            elif keys[K_DOWN] or self.joy_dir == 'down'  or direction == 'down':
                 self.offset_y = (self.offset_y + 1) % size[1]
                 self.vector = 'down'
                 action = True
-            elif keys[K_RIGHT] or direction == 'right':
+            elif keys[K_RIGHT] or self.joy_dir == 'right'  or direction == 'right':
                 self.offset_x = (self.offset_x + 1) % size[0]
                 self.vector = 'right'
                 action = True
-            elif keys[K_LEFT] or direction == 'left':
+            elif keys[K_LEFT] or self.joy_dir == 'left' or direction == 'left':
                 self.offset_x = (self.offset_x - 1) % size[0]
                 self.vector = 'left'
                 action = True
-            elif keys[K_SPACE]:
+            elif keys[K_SPACE] or button_event:
                 if self.state == 'init':
                     self.first_spawns()    
                     action = True
@@ -352,7 +367,6 @@ class LostInSpace(Application):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Do something :D')
-    parser.add_argument('-i', '--input', default='keyboard', choices=['keyboard','joystick'], help='Input method (default: keyboard)')
     parser.add_argument('--invader', action='store_true', help='Super Space Invader mod (default: disabled)')
     parser.add_argument('-a-', '--auto', action='store_true', help='The computer plays alone (default: disabled)')
     LostInSpace(parser).start()
