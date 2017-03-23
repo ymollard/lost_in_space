@@ -90,7 +90,7 @@ class LostInSpace(Application):
         if(self.ai):
             dir_list = ['up', 'down', 'left', 'right']
             direction = dir_list[random.randint(0,len(dir_list)-1)]
-            steps = random.randint(0,10)
+            steps = 1 #random.randint(0,10)
         else:
             direction =''
             steps = 1
