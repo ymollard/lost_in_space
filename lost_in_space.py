@@ -65,6 +65,11 @@ class LostInSpace(Application):
 
     def event(self):
         action = False
+        
+        if self.args.autostart and self.state == 'init':
+            self.first_spawns()    
+            action = True
+        
         events = self.arbalet.events.get()
         button_event = len([e for e in events if e.type == pygame.JOYBUTTONDOWN]) != 0
         hat_events = [e.value for e in events if e.type == pygame.JOYHATMOTION]
@@ -368,5 +373,6 @@ class LostInSpace(Application):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Do something :D')
     parser.add_argument('--invader', action='store_true', help='Super Space Invader mod (default: disabled)')
+    parser.add_argument('--autostart', action='store_true', help='Automatically start the first spawns (default: disabled)')
     parser.add_argument('-a-', '--auto', action='store_true', help='The computer plays alone (default: disabled)')
     LostInSpace(parser).start()
